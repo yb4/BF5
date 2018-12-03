@@ -1,26 +1,25 @@
-#library(shiny)
-#library(leaflet)
+library(shiny)
+library(leaflet)
 
 df_homeless <- read.csv("~/Desktop/201/BF5/Data/Homelessness.csv", stringsAsFactors = FALSE)
 df_homeless['State'] <- state.name[match(df_homeless$State, state.abb)]
-df_homeless$ID <- tolower(df_homeless['State'])
+df_homeless$ID <- tolower(df_homeless[['State']])
 
 # load rent data ----------------------------------------------------------
-l_cols = readr::cols_only(State_Name = "c",
-                          County     = "c",
-                          Median     = "i",
-                          Samples    = "i")
+
 
 #df_rent = readr::read_csv("~/Desktop/201/BF5/Data/kaggle_gross_rent.csv", col_types = l_cols)
 df_rent = read.csv("Data/kaggle_gross_rent.csv", stringsAsFactors = FALSE)
 
 # convert invalid UTF-8 characters that seem to be present ----------------
-# df_rent$County = iconv(df_rent$County, "UTF-8", "UTF-8", sub = "")
+df_rent$County = iconv(df_rent$County, "UTF-8", "UTF-8", sub = "")
 
 # load county geometry ----------------------------------------------------
 m_geom = maps::map("county", fill = TRUE, plot = FALSE)
 
 # build ID field in rent data to match geometry ---------------------------
+
+df_rent = as.data.table(df_rent)
 
 df_rent[, ID := sprintf("%s,%s", tolower(State_Name), 
                         tolower(stringr::str_trim(stringr::str_replace(County, "County", ""))))]
