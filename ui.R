@@ -37,7 +37,7 @@ ui <- navbarPage(
       ),
       
     # Main panel for displaying outputs ----
-    mainPanel(
+    mainPanel("Potential Causes of Honelessness",
       
       # Output: Tabset w/ plot, summary, and table ----
       tabsetPanel(type = "tabs",
