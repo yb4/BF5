@@ -13,7 +13,7 @@ library(leaflet)
 
 # Define server logic required to draw a histogram
 shinyServer(function(input, output) {
-   x
+   
   output$distPlot <- renderPlot({
     
     # generate bins based on input$bins from ui.R
