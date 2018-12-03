@@ -22,6 +22,21 @@ state_save_csv <- function(state_name) {
 }
 lapply(total_homeless$State,state_save_csv)
 
+# server <- function(input, output) {
+#   output$Homeless_Population_bystate <- renderPlot({
+#     state_plot <- filter(State == input$state_choose)
+#     ggplot(state_plot)
+# 
+#       
+#     )
+#   })
+#   }
+data_set <- read.csv("data/data_by_states/CA.csv")
+gg <- ggplot(data = data_set, aes(x = CoC.Name,y = Count, color = 'darkblue')) + labs(tite = "Homeless Population Per County",
+                                                                                         x = "County", y = "Population") + 
+                                                                          geom_bar(stacat = "identity")
+View(gg)
+
                       
 
 # server <- function(input, output) {
