@@ -1,9 +1,33 @@
 library(shiny)
 library(leaflet)
+library(dplyr)
+library(lubridate)
 
+#Load homeless data
 df_homeless <- read.csv("~/Desktop/201/BF5/Data/Homelessness.csv", stringsAsFactors = FALSE)
+
+#clean up homeless data
 df_homeless['State'] <- state.name[match(df_homeless$State, state.abb)]
+df_homeless['State']
 df_homeless$ID <- tolower(df_homeless[['State']])
+df_homeless$Count[is.na(df_homeless$Count)] <- 0
+df_homeless$Count <- as.numeric(sub(",", ".", df_homeless$Count, fixed = TRUE))
+df_homeless$Year <- dmy(df_homeless$Year)
+
+# filter year and sum
+df_homeless <- filter(df_homeless, year(Year) == 2016)
+df_homeless <- filter(df_homeless, Measures == "Total Homeless") %>% group_by(State) %>% 
+  summarise("Total Homeless" = sum(Count))
+
+# join with population by state
+df_pop <- read.csv("~/Desktop/201/BF5/Data/acs2015_census_tract_data.csv", stringsAsFactors = FALSE)
+df_pop <- df_pop %>% group_by(State) %>% summarise("Total Pop" = sum(TotalPop))
+
+
+
+  #cols: population, sum, proportion 
+
+
 
 # load rent data ----------------------------------------------------------
 
