@@ -8,26 +8,64 @@ df_homeless <- read.csv("~/Desktop/201/BF5/Data/Homelessness.csv", stringsAsFact
 
 #clean up homeless data
 df_homeless['State'] <- state.name[match(df_homeless$State, state.abb)]
-df_homeless['State']
-df_homeless$ID <- tolower(df_homeless[['State']])
 df_homeless$Count[is.na(df_homeless$Count)] <- 0
-df_homeless$Count <- as.numeric(sub(",", ".", df_homeless$Count, fixed = TRUE))
+df_homeless$Count <- as.numeric(sub(",", "", df_homeless$Count, fixed = TRUE))
 df_homeless$Year <- dmy(df_homeless$Year)
+df_homeless[df_homeless$Count == 8350, 'State'] <- 'District of Columbia'
+df_homeless <- na.omit(df_homeless)
+
 
 # filter year and sum
 df_homeless <- filter(df_homeless, year(Year) == 2016)
 df_homeless <- filter(df_homeless, Measures == "Total Homeless") %>% group_by(State) %>% 
-  summarise("Total Homeless" = sum(Count))
+  summarise("Total_homeless" = sum(Count))
+
 
 # join with population by state
 df_pop <- read.csv("~/Desktop/201/BF5/Data/acs2015_census_tract_data.csv", stringsAsFactors = FALSE)
-df_pop <- df_pop %>% group_by(State) %>% summarise("Total Pop" = sum(TotalPop))
+df_pop <- df_pop %>% group_by(State) %>% summarise("Total_pop" = sum(TotalPop))
+df_homeless <- left_join(df_homeless, df_pop, by = "State")
+
+# mutate proportion column
+df_homeless <- mutate(df_homeless, Homeless_perc = (Total_homeless / Total_pop) * 100 )
+
+# cleanup before joining sp
+df_homeless <- rbind(df_homeless, data.frame('State' = 'Puerto Rico', 'Total_homeless' = '', 
+                                             'Total_pop' = '', 'Homeless_perc' = ''))
+colnames(df_homeless)[1] <- "name"
+df_homeless[c(2,3,4)] <- sapply(df_homeless[c(2,3,4)],as.numeric)
+
+
+m_geom1 <- 
+  geojson_read( x = "https://raw.githubusercontent.com/PublicaMundi/MappingAPI/master/data/geojson/us-states.json"
+    , what = "sp", stringsAsFactors = FALSE)
+
+m_geom1@data <- right_join(m_geom1@data, df_homeless, by = 'name')
+
+m1 = leaflet(m_geom, width = "100%")
+m1 = addTiles(m1)
+
+m1 = addPolygons(m1,
+                fillColor = ~f_pale(Homeless_perc),
+                weight = 2,
+                opacity = 1,
+                color = "white",
+                dashArray = "3",
+                fillOpacity = 0.4,
+                highlight = l_hl_options,
+                label = "",
+                labelOptions = l_lb_options)
+
+m1 = addLegend(m1, 
+              position = "bottomright",
+              pal = f_pale,
+              values = sp_rent@data$w_median, 
+              title = "Rent percentile")
 
 
 
-  #cols: population, sum, proportion 
 
-
+# My work ^
 
 # load rent data ----------------------------------------------------------
 
@@ -65,6 +103,8 @@ sp_rent = sp::SpatialPolygonsDataFrame(maptools::map2SpatialPolygons(m_geom, IDs
 # build color palette for leaflet map -------------------------------------
 f_pale = colorQuantile("RdYlBu", domain = sp_rent@data$w_median, 
                        n = 10, reverse = TRUE)
+
+#next hting to do : fix f_pale to fix new data
 
 # build labels ------------------------------------------------------------
 v_labs = sprintf(stringr::str_c("<strong>County:</strong> %s<br>",
