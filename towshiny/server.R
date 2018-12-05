@@ -18,12 +18,14 @@ shinyServer(function(input, output) {
   df_homeless <- na.omit(df_homeless)
   
   
+  # render rankng table
   
   # render homeless map ---------------------------------------------------------------------
   output$homeless_m <- renderLeaflet({
     
   # filter year and sum
-  df_homeless <- filter(df_homeless, year(Year) == 2016)
+  fill_max <- round(arrange(geo_homeless@data, -percentage)[2,'percentage'], digits = 2) + 0.01
+  df_homeless <- filter(df_homeless, year(Year) == input$year)
   df_homeless <- filter(df_homeless, Measures == input$indicator) %>% group_by(State) %>% 
     summarise("total" = sum(Count))
 
@@ -41,8 +43,8 @@ shinyServer(function(input, output) {
   df_homeless[c(2,3,4)] <- sapply(df_homeless[c(2,3,4)],as.double)
     
   # import and join us-state geo sp
-  geo_homeless <- 
-      geojson_read( x = "~/Desktop/201/BF5/Data/us-states.json"
+  
+  geo_homeless <- geojson_read( x = "~/Desktop/201/BF5/Data/us-states.json"
                     , what = "sp", stringsAsFactor = FALSE)
     
   geo_homeless@data <- right_join(geo_homeless@data, df_homeless, by = 'name')
@@ -59,8 +61,9 @@ shinyServer(function(input, output) {
   v_lab = purrr::map(v_lab, htmltools::HTML)
     
   #set color palet 
-  f_palet = colorQuantile("RdYlBu", domain = geo_homeless@data$percentage, 
-                            n = 10, reverse = TRUE)
+  
+  bins <- seq(0, fill_max, by= 0.05)
+  f_palet = colorBin("YlOrRd", domain = geo_homeless@data$percentage, bins = bins)
     
   #Set label and highight options
   l_hl_options = highlightOptions(weight = 5, color = "#666", dashArray = "",
@@ -70,12 +73,12 @@ shinyServer(function(input, output) {
                                 textsize = "12px")
     
   #create map
-  m = leaflet(geo_homeless, width = "100%") %>% 
+  m = leaflet(geo_homeless, width = "60%") %>% 
     addTiles() %>% 
     addPolygons(fillColor = ~f_palet(percentage), weight = 2, opacity = 1,color = "white",dashArray = "3",  
                 fillOpacity = 0.4, highlight = l_hl_options, label = v_lab, labelOptions = l_lb_options) %>% 
     addLegend(position = "bottomright", pal = f_palet, values = geo_homeless@data$percentage, 
-                title = "Homelessness Percentile")
+                title = "Homelessness Percentage")
   })
 
 })
