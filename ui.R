@@ -1,6 +1,8 @@
 library(shiny)
 library(ggplot2)
-library(leaflet)
+library(
+  
+)
 ui <- navbarPage(
   
   # App title ----

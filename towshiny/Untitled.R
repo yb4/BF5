@@ -18,16 +18,16 @@ df_homeless <- na.omit(df_homeless)
 # filter year and sum
 df_homeless <- filter(df_homeless, year(Year) == 2016)
 df_homeless <- filter(df_homeless, Measures == "Total Homeless") %>% group_by(State) %>% 
-  summarise("Total_homeless" = sum(Count))
+  summarise("total" = sum(Count))
 
 
 # join with population by state
 df_pop <- read.csv("~/Desktop/201/BF5/Data/acs2015_census_tract_data.csv", stringsAsFactors = FALSE)
-df_pop <- df_pop %>% group_by(State) %>% summarise("Total_pop" = sum(TotalPop))
+df_pop <- df_pop %>% group_by(State) %>% summarise("population" = sum(TotalPop))
 df_homeless <- left_join(df_homeless, df_pop, by = "State")
 
 # mutate proportion column
-df_homeless <- mutate(df_homeless, Homeless_perc = (Total_homeless / Total_pop) * 100 )
+df_homeless <- mutate(df_homeless, percentage = (total / population) * 100 )
 
 # cleanup before joining sp
 
@@ -44,15 +44,16 @@ geo_homeless@data <- right_join(geo_homeless@data, df_homeless, by = 'name')
 #set label
 v_lab = sprintf(stringr::str_c("<strong>State:</strong> %s<br>",
                                 "<strong>Total Population:</strong> %s<br>",
-                                "<strong>Homeless Population: </strong> %s",
+                                "<strong>Homeless Population: </strong> %s <br>",
+                                "<strong>Homeless Percentage: </strong> %.2f%%",
                                 collapse = ""),
-                 geo_homeless@data$name, geo_homeless@data$Total_pop, geo_homeless@data$Total_homeless) 
-                # formatC(sp_rent@data$w_median, format = "f", digits = 0, big.mark = ","))
+                 geo_homeless@data$name, geo_homeless@data$population, geo_homeless@data$total,
+                geo_homeless@data$percentage) 
 
 v_lab = purrr::map(v_lab, htmltools::HTML)
 
 #set color palet 
-f_palet = colorQuantile("RdYlBu", domain = geo_homeless@data$Homeless_perc, 
+f_palet = colorQuantile("RdYlBu", domain = geo_homeless@data$percentage, 
                        n = 10, reverse = TRUE)
 
 #Set label and highight options
@@ -63,11 +64,7 @@ l_lb_options = labelOptions(style = list("font-weight" = "normal"),
                             textsize = "12px")
 
 #create map
-m = leaflet(geo_homeless, width = "100%")
-m = addTiles(m)
-
-m = addPolygons(m,
-                fillColor = ~f_palet(Homeless_perc),
+m = leaflet(geo_homeless, width = "100%") %>% addTiles() %>% addPolygons(fillColor = ~f_palet(percentage),
                 weight = 2,
                 opacity = 1,
                 color = "white",
@@ -75,10 +72,8 @@ m = addPolygons(m,
                 fillOpacity = 0.4,
                 highlight = l_hl_options,
                 label = v_lab,
-                labelOptions = l_lb_options)
-
-m = addLegend(m, 
-              position = "bottomright",
+                labelOptions = l_lb_options) %>%
+addLegend(position = "bottomright",
               pal = f_palet,
-              values = geo_homeless@data$Homeless_perc, 
+              values = geo_homeless@data$percentage, 
               title = "Homelessness Percentile")
