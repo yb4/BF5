@@ -24,7 +24,7 @@ shinyServer(function(input, output) {
   output$homeless_m <- renderLeaflet({
     
   # filter year and sum
-  fill_max <- round(arrange(geo_homeless@data, -percentage)[2,'percentage'], digits = 2) + 0.01
+  fill_max <- round(arrange(geo_homeless@data, -percentage)[2,'percentage'], digits = 2) + 0.05
   df_homeless <- filter(df_homeless, year(Year) == input$year)
   df_homeless <- filter(df_homeless, Measures == input$indicator) %>% group_by(State) %>% 
     summarise("total" = sum(Count))
@@ -62,7 +62,7 @@ shinyServer(function(input, output) {
     
   #set color palet 
   
-  bins <- seq(0, fill_max, by= 0.05)
+  bins <- seq(0, 0.5, by= 0.05)
   f_palet = colorBin("YlOrRd", domain = geo_homeless@data$percentage, bins = bins)
     
   #Set label and highight options
