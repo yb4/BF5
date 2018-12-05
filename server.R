@@ -3,8 +3,11 @@ library(leaflet)
 library(dplyr)
 library(lubridate)
 library(geojsonio)
+library(ggplot2)
 
 shinyServer(function(input, output) {
+  
+  
   # load homeless data
   df_homeless <- read.csv("Data/Homelessness.csv", stringsAsFactors = FALSE)
   
@@ -24,16 +27,15 @@ shinyServer(function(input, output) {
   output$by_state <- renderPlot({
     #filter year and sum total homeless
     df_homeless$Year <- year(df_homeless$Year)
-    df_homeless <- filter(df_homeless, Measures == 'Total Homeless', State == input$state) %>% group_by(Year) %>%
+    df_homeless <- filter(df_homeless, Measures == input$state_indicator, State == input$state) %>% group_by(Year) %>%
       summarise("total" = sum(Count))
     
     bar <- ggplot(df_homeless, aes(x=Year, y=total)) + 
       geom_bar(stat="identity", fill=c("green")) + 
       geom_label(aes(label=total), size = 3) +
       labs(y = "Homeless Population") + 
-      ggtitle(paste0(input$state,"'s Total Homeless Population by Year")) +
+      ggtitle(paste0(input$state,"'s", input$state_indicator, " Population by Year")) +
       scale_x_discrete(name = 'Year', limits = 2007:2016)
-    
     
     bar
   })
