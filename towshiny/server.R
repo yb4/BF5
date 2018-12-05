@@ -3,9 +3,16 @@ library(leaflet)
 library(dplyr)
 library(lubridate)
 
+#Setting up libraries required for this task @yashb4
+library(ggplot2)
+library(ggvis)
+install.packages('openintro')
+library(openintro)
+library(ggrepel)
+
 shinyServer(function(input, output) {
   #Load homeless data
-  df_homeless <- read.csv("~/Desktop/201/BF5/Data/Homelessness.csv", stringsAsFactors = FALSE)
+  df_homeless <- read.csv("~/Desktop/BF5/Data/Homelessness.csv", stringsAsFactors = FALSE)
   
   #clean up homeless data
   df_homeless['State'] <- state.name[match(df_homeless$State, state.abb)]
@@ -23,7 +30,7 @@ shinyServer(function(input, output) {
   
   
   # join with population by state
-  df_pop <- read.csv("~/Desktop/201/BF5/Data/acs2015_census_tract_data.csv", stringsAsFactors = FALSE)
+  df_pop <- read.csv("~/Desktop/BF5/Data/acs2015_census_tract_data.csv", stringsAsFactors = FALSE)
   df_pop <- df_pop %>% group_by(State) %>% summarise("population" = sum(TotalPop))
   df_homeless <- left_join(df_homeless, df_pop, by = "State")
   
@@ -37,7 +44,7 @@ shinyServer(function(input, output) {
   
   # 
   geo_homeless <- 
-    geojson_read( x = "~/Desktop/201/BF5/Data/us-states.json"
+    geojson_read( x = "~/Desktop/BF5/Data/us-states.json"
                   , what = "sp", stringsAsFactor = FALSE)
   
   geo_homeless@data <- right_join(geo_homeless@data, df_homeless, by = 'name')
@@ -88,4 +95,7 @@ shinyServer(function(input, output) {
     
   })
   
-})
+  
+
+  })
+
