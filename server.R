@@ -6,7 +6,7 @@ library(geojsonio)
 
 shinyServer(function(input, output) {
   # load homeless data
-  df_homeless <- read.csv("~/Desktop/201/BF5/Data/Homelessness.csv", stringsAsFactors = FALSE)
+  df_homeless <- read.csv("Data/Homelessness.csv", stringsAsFactors = FALSE)
   
   # clean up homeless data
   state_name <- append(state.name, "District of Columbia", after = 8) 
@@ -17,10 +17,49 @@ shinyServer(function(input, output) {
   df_homeless$Year <- dmy(df_homeless$Year)
   df_homeless <- na.omit(df_homeless)
   
-  geo_homeless <- geojson_read( x = "~/Desktop/201/BF5/Data/us-states.json"
+  geo_homeless <- geojson_read( x = "Data/us-states.json"
                                 , what = "sp", stringsAsFactor = FALSE)
   
-  # render rankng table
+  # rendering bar graph--------------------------------------------------------------------
+  output$by_state <- renderPlot({
+    #filter year and sum total homeless
+    df_homeless$Year <- year(df_homeless$Year)
+    df_homeless <- filter(df_homeless, Measures == 'Total Homeless', State == input$state) %>% group_by(Year) %>%
+      summarise("total" = sum(Count))
+    
+    bar <- ggplot(df_homeless, aes(x=Year, y=total)) + 
+      geom_bar(stat="identity", fill=c("green")) + 
+      geom_label(aes(label=total), size = 3) +
+      labs(y = "Homeless Population") + 
+      ggtitle(paste0(input$state,"'s Total Homeless Population by Year")) +
+      scale_x_discrete(name = 'Year', limits = 2007:2016)
+    
+    
+    bar
+  })
+  
+  # render ranking table -------------------------------------------------------------------
+  output$ranking <- renderTable({
+    # filter year and sum
+    df_homeless <- filter(df_homeless, year(Year) == input$rank_year)
+    df_homeless <- filter(df_homeless, Measures == input$rank_indicator) %>% group_by(State) %>% 
+      summarise("Total" = sum(Count))
+    
+    # join with population by state
+    df_pop <- read.csv("Data/acs2015_census_tract_data.csv", stringsAsFactors = FALSE)
+    df_pop <- df_pop %>% group_by(State) %>% summarise("Population" = sum(TotalPop))
+    df_homeless <- left_join(df_homeless, df_pop, by = "State")
+    
+    # mutate proportion column
+    df_homeless <- mutate(df_homeless, Percentage = (Total / Population) * 100 ) %>% arrange(-Percentage)
+    
+    #Final cleanup and add ranked index
+    df_homeless$Total <- format(df_homeless$Total, nsmall = 0)
+    colnames(df_homeless)[2] <- "Total Homeless"
+    df_homeless$Rank <- 1:51
+    df_homeless <- select(df_homeless, Rank, State, "Total Homeless", Population, Percentage)
+    
+  })
   
   # render homeless map ---------------------------------------------------------------------
   output$homeless_m <- renderLeaflet({
@@ -31,7 +70,7 @@ shinyServer(function(input, output) {
       summarise("total" = sum(Count))
     
     # join with population by state
-    df_pop <- read.csv("~/Desktop/201/BF5/Data/acs2015_census_tract_data.csv", stringsAsFactors = FALSE)
+    df_pop <- read.csv("Data/acs2015_census_tract_data.csv", stringsAsFactors = FALSE)
     df_pop <- df_pop %>% group_by(State) %>% summarise("population" = sum(TotalPop))
     df_homeless <- left_join(df_homeless, df_pop, by = "State")
     
@@ -77,6 +116,8 @@ shinyServer(function(input, output) {
                   fillOpacity = 0.4, highlight = l_hl_options, label = v_lab, labelOptions = l_lb_options) %>% 
       addLegend(position = "bottomright", pal = f_palet, values = geo_homeless@data$percentage, 
                 title = "Homelessness Percentage")
+    
+    m
   })
   
 })
