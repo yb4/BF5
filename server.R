@@ -4,16 +4,68 @@ library(dplyr)
 library(data.table)
 library(ggplot2)
 library(R.utils)
+library(ggvis)
 setwd("~/Desktop/BF5/")
+
 homeless_by_state <- data.table :: fread("data/Homelessness.csv", sep = ",", stringsAsFactors = FALSE)
-total_homeless <- homeless_by_state %>% filter(Measures == "Total Homeless")
+total_homeless <- homeless_by_state %>% filter(Measures == "Total Homeless") %>% filter(Year == "1/1/2012") 
 write.csv(total_homeless, "data/total_homeless.csv", row.names = TRUE)
 
-# Help needed here, trying to calculate the sum total of the Homeless Population
-# gives me the nrow() instead
-#sum_total_homeless <- sum(total_homeless, sum = sum(Count))
+#Clean up data for Binge Drinking in States
+drunkards_by_state <- data.table :: fread ("data/binge_drinking.csv", sep = ",", stringsAsFactors = FALSE)
+total_drunkards <- drunkards_by_state %>% select(state, location, both_sexes_2012)
+total_drunkards
+state_drink_csv <- function(state_name) {
+  output_data <- paste("Data/Data_by_states/", state_name, "d.csv", sep = "")
+  state_of_data <- filter(total_drunkards, state == state_name)
+  final_output <- write.csv(state_of_data, output_data)
+  return(final_output)
+}
+lapply(total_drunkards$state,state_drink_csv)
 
-#homeless_per_state <- filter(total_homeless, State =="CA") 
+homeless_by_state$Count <- as.numeric(gsub(",","",homeless_by_state$Count))
+homeless_people_per_state <- homeless_by_state%>% filter(Year == "1/1/2012") %>% 
+                            select(State, Count) %>% filter(State != "GU" & State != "PR" & State != "VI") %>% 
+                                filter(Count != "NA") %>%  group_by(State) %>% 
+                          summarise(Count = sum(as.numeric(Count))) %>% mutate(State = tolower(State))
+
+# names(homeless_people_per_state) <- c("region", "average")
+# states <- map_data("state")
+# graph <- ggplot(states) + geom_map(data = states, map = states,
+#                                    aes(x = long, y = lat, map_id = region),
+#                                    fill = "#ffffff", color = "#ffffff", size = 0.15)
+# graph <- graph + geom_map(data = homeless_people_per_state, map = states, aes(fill = average, map_id = region))
+
+
+drunk_people_total_by_state <- data.table :: fread ("data/binge_drinking.csv", sep = ",", stringsAsFactors = FALSE)
+drunk_people_per_state <- drunk_people_total_by_state %>% select(state, both_sexes_2012) %>% 
+                           group_by(state) %>% summarise(average = mean(both_sexes_2012)) %>% 
+                          filter(state != "National") %>% mutate(state = tolower(state))
+
+#names(drunk_people_per_state) <- c("region", "average")
+names(drunk_people_per_state) <- c("State", "average")
+names(homeless_people_per_state) <- c("State", "Count")
+
+lapply(drunk_people_per_state, state.abb[grep(State, state.name)])
+
+plott <- ggplot (drunk_people_per_state, aes(x=State, y=average), color = "class") + geom_bar(stat = "identity")
+          + ggplot(homeless_people_per_state, aes(x=drunk_people_per_state$state.abb))
+
+# Following is the code for a GG Vis Plot for Drunk Peopel and HomeLess People
+# plott <- homeless_people_per_state %>% ggvis(~State, ~Count) %>% layer_points(fill = ~temp_name) #%>% drunk_people_per_state %>% ggvis(~region, ~average) %>% layer_lines()
+# plott <- drunk_people_per_state %>% ggvis(~State, ~average) %>% layer_paths()
+
+names(drunk_people_per_state) <- c("region", "average")
+states <- map_data("state")
+graph <- ggplot(states) + geom_map(data = states, map = states,
+                                   aes(x = long, y = lat, map_id = region),
+                                   fill = "#ffffff", color = "#ffffff", size = 0.15)
+graph <- graph + geom_map(data = drunk_people_per_state, map = states, aes(fill = average, map_id = region))
+
+                          
+
+
+# Clean up data for homeless people in States
 state_save_csv <- function(state_name) {
   output_data <- paste("Data/Data_by_states/", state_name, ".csv", sep = "")
   state_of_data <- filter(total_homeless, State == state_name)
@@ -22,47 +74,29 @@ state_save_csv <- function(state_name) {
 }
 lapply(total_homeless$State,state_save_csv)
 
-# server <- function(input, output) {
-#   output$Homeless_Population_bystate <- renderPlot({
-#     state_plot <- filter(State == input$state_choose)
-#     ggplot(state_plot)
-# 
-#       
-#     )
-#   })
-#   }
-data_set <- read.csv("data/data_by_states/CA.csv")
-gg <- ggplot(data = data_set, aes(x = CoC.Name,y = Count, color = 'darkblue')) + labs(tite = "Homeless Population Per County",
-                                                                                         x = "County", y = "Population") + 
-                                                                          geom_bar(stacat = "identity")
-View(gg)
 
-                      
 
-# server <- function(input, output) {
-#   output$country_wide_graph <- renderPlotly({
-#   library(plotly)
-#   df$hover <- with(df, paste(State, '<br>', "County", CoC Name,"<br>",
-#                              "Count", Count))
-#   # give state boundaries a white border
-#   l <- list(color = toRGB("White"), width = 2)
-#   # specify some map projection/options
-#   g <- list(
-#     scope = 'usa',
-#     projection = list(type = 'albers usa'),
-#     showlakes = TRUE,
-#     lakecolor = toRGB('blue')
-#   )
-# 
-#   p <- plot_geo(df, locationmode = 'USA-states') %>%
-#     add_trace(
-#       z = ~Count, text = ~hover, locations = ~State,
-#       color = ~Count, colors = 'Purples'
-#     ) %>%
-#     colorbar(title = "Population") %>%
-#     layout(
-#       title = 'Distribution of Homeless Populaiton Around the United States<br>(Hover for breakdown)',
-#       geo = g
-#     )
-# })
-#   }
+#data_sets <- read.csv("data/data_by_states/ME.csv", stringsAsFactors = FALSE)
+data_sets
+
+data_sets_drunk <- read.csv("data/data_by_states/MainedrunkPeople.csv", stringsAsFactors = FALSE)
+#data_sets_drunk %>% ggvis(~location, ~both_sexes_2012) %>% layer_lines()
+
+
+
+
+
+my_server <- function(input, output) {
+  output$states <- renderPlot ({
+    input_state <- input$state_select
+    data_sets <- read.csv(paste("Data/Data_by_states/", input_state, "d.csv", sep = ""), stringsAsFactors = FALSE)
+    #stata_drunk_data_select <- read.csv(paste("data/data_by_states/", input_state,"drunkPeople.csv", sep=""), stringsAsFactors = FALSE)
+    ggplot(
+      data_sets,
+      aes(x=location,y=both_sexes_2012) +
+      labs(xlab = input_state, ylab = "Number of Homeless Reported in the Year 2012") 
+    )
+    #data_sets %>% ggvis(~Year, ~Count) %>% layer_points(fill = ~temp_name) #%>% data_sets_drunk %>% ggvis(~location, ~both_sexes_2012) %>% layer_lines()
+    })
+}
+
