@@ -7,11 +7,12 @@ library(lubridate)
 df_homeless <- read.csv("~/Desktop/201/BF5/Data/Homelessness.csv", stringsAsFactors = FALSE)
 
 #clean up homeless data
-df_homeless['State'] <- state.name[match(df_homeless$State, state.abb)]
+state_name <- append(as.list(state.name), "District of Columbia", after = 8) 
+state_abb <- append(as.list(state.abb), "DC", after = 8)
+df_homeless['State'] <- state_name[match(df_homeless$State, state_abb)]
 df_homeless$Count[is.na(df_homeless$Count)] <- 0
 df_homeless$Count <- as.numeric(sub(",", "", df_homeless$Count, fixed = TRUE))
 df_homeless$Year <- dmy(df_homeless$Year)
-df_homeless[df_homeless$Count == 8350, 'State'] <- 'District of Columbia'
 df_homeless <- na.omit(df_homeless)
 
 
