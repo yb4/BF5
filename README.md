@@ -34,5 +34,7 @@ to see if any of these can be a potential causes of Homelessness
 
 ## Project Team Members: 
 Yash Baldawa
+___
 Tow Mokaramnee
+___
 Suyash Ahuja
