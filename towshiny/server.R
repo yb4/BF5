@@ -17,6 +17,8 @@ shinyServer(function(input, output) {
   df_homeless$Year <- dmy(df_homeless$Year)
   df_homeless <- na.omit(df_homeless)
   
+  geo_homeless <- geojson_read( x = "~/Desktop/201/BF5/Data/us-states.json"
+                                , what = "sp", stringsAsFactor = FALSE)
   
   # render rankng table
   
@@ -24,7 +26,6 @@ shinyServer(function(input, output) {
   output$homeless_m <- renderLeaflet({
     
   # filter year and sum
-  fill_max <- round(arrange(geo_homeless@data, -percentage)[2,'percentage'], digits = 2) + 0.05
   df_homeless <- filter(df_homeless, year(Year) == input$year)
   df_homeless <- filter(df_homeless, Measures == input$indicator) %>% group_by(State) %>% 
     summarise("total" = sum(Count))
@@ -43,9 +44,6 @@ shinyServer(function(input, output) {
   df_homeless[c(2,3,4)] <- sapply(df_homeless[c(2,3,4)],as.double)
     
   # import and join us-state geo sp
-  
-  geo_homeless <- geojson_read( x = "~/Desktop/201/BF5/Data/us-states.json"
-                    , what = "sp", stringsAsFactor = FALSE)
     
   geo_homeless@data <- right_join(geo_homeless@data, df_homeless, by = 'name')
     
