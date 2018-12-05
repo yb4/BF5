@@ -2,23 +2,26 @@ library(shiny)
 library(leaflet)
 library(dplyr)
 library(lubridate)
+library(geojsonio)
+library(ggplot2)
 
-#Load homeless data
+
+# load homeless data
 df_homeless <- read.csv("~/Desktop/201/BF5/Data/Homelessness.csv", stringsAsFactors = FALSE)
 
-#clean up homeless data
-state_name <- append(as.list(state.name), "District of Columbia", after = 8) 
-state_abb <- append(as.list(state.abb), "DC", after = 8)
+# clean up homeless data
+state_name <- append(state.name, "District of Columbia", after = 8) 
+state_abb <- append(state.abb, "DC", after = 8)
 df_homeless['State'] <- state_name[match(df_homeless$State, state_abb)]
 df_homeless$Count[is.na(df_homeless$Count)] <- 0
 df_homeless$Count <- as.numeric(sub(",", "", df_homeless$Count, fixed = TRUE))
 df_homeless$Year <- dmy(df_homeless$Year)
 df_homeless <- na.omit(df_homeless)
-
-
+  
 # filter year and sum
+fill_max <- round(arrange(geo_homeless@data, -percentage)[2,'percentage'], digits = 2) + 0.01
 df_homeless <- filter(df_homeless, year(Year) == 2016)
-df_homeless <- filter(df_homeless, Measures == "Total Homeless") %>% group_by(State) %>% 
+df_homeless <- filter(df_homeless, Measures == 'Total Homeless') %>% group_by(State) %>% 
   summarise("total" = sum(Count))
 
 
@@ -79,6 +82,7 @@ addLegend(position = "bottomright",
               values = geo_homeless@data$percentage, 
               title = "Homelessness Percentile")
 
+<<<<<<< HEAD
 homeless_by_state <- read.csv("Data/Homelessness.csv", stringsAsFactors = FALSE)
 total_homeless <- homeless_by_state %>% filter(Measures == "Total Homeless") %>% filter(Year == "1/1/2012") 
 write.csv(total_homeless, "~/Desktop/201/BF5/Data/Homelessness.csv", row.names = TRUE)
@@ -104,3 +108,38 @@ drunk_people_per_state <- drunk_people_per_state %>% mutate(state, State = state
 homeless_and_drunk_people <- left_join(homeless_people_per_state,drunk_people_per_state)
 
 
+=======
+# homeless vs rent vs income 
+df_rent <- read.csv("Data/kaggle_gross_rent.csv", stringsAsFactors = FALSE)
+df_income <- read.csv("Data/kaggle_income.csv", stringsAsFactors = FALSE)
+
+
+# clean up rent
+df_rent <- filter(df_rent, State_Name != "Puerto Rico", Samples != 0, 
+                  State_Name == "District of Columbia" | Type != 'Track') %>% 
+  group_by(State_Name) %>% summarise("median_rent" = format(mean(Mean), nsmall = 0)) 
+colnames(df_rent)[1] <- "State"
+
+
+
+# clean up income
+df_income <- filter(df_income, State_Name != "Puerto Rico", sum_w != 0, 
+                  State_Name == "District of Columbia" | Type != 'Track') %>% 
+  group_by(State_Name) %>% summarise("median_income" = format(median(Mean), digits = 5))
+colnames(df_income)[1] <- "State"
+
+
+
+
+
+# join data
+df_scatter <- full_join(df_homeless, df_income, by = 'State') %>% full_join(df_rent, by = 'State')
+df_scatter[c(2, 3, 4, 5, 6)] <- sapply(df_homeless[c(2, 3, 4, 5, 6)],as.double)
+
+
+scatter <- ggplot(df_scatter, aes(x=median_rent, y=total, color = median_income)) +
+  geom_point()
+
+
+  
+>>>>>>> tow

@@ -71,12 +71,11 @@ shinyServer(function(input, output) {
                                 textsize = "12px")
     
     #create map
-    m = leaflet(geo_homeless, width = "100%") %>% 
+    m = leaflet(geo_homeless, width = "60%") %>% 
       addTiles() %>% 
-      addPolygons(fillColor = ~f_palet(percentage), weight = 2, opacity = 1,color = "white", dashArray = "3",  
+      addPolygons(fillColor = ~f_palet(percentage), weight = 2, opacity = 1,color = "white",dashArray = "3",  
                   fillOpacity = 0.4, highlight = l_hl_options, label = v_lab, labelOptions = l_lb_options) %>% 
       addLegend(position = "bottomright", pal = f_palet, values = geo_homeless@data$percentage, 
                 title = "Homelessness Percentage")
   })
-  
 })

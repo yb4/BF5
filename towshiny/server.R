@@ -15,18 +15,25 @@ shinyServer(function(input, output) {
   library(ggrepel)
   library(jsonlite)
   
-  shinyServer(function(input, output) {
-    #Load homeless data
-    df_homeless <- read.csv("~/Desktop/BF5/Data/Homelessness.csv", stringsAsFactors = FALSE)
+
+  geo_homeless <- geojson_read( x = "~/Desktop/201/BF5/Data/us-states.json"
+                                , what = "sp", stringsAsFactor = FALSE)
+  
+  # render rankng table
+  
+  # render homeless map ---------------------------------------------------------------------
+  output$homeless_m <- renderLeaflet({
     
-    # clean up homeless data
-    state_name <- append(state.name, "District of Columbia", after = 8) 
-    state_abb <- append(state.abb, "DC", after = 8)
-    df_homeless['State'] <- state_name[match(df_homeless$State, state_abb)]
-    df_homeless$Count[is.na(df_homeless$Count)] <- 0
-    df_homeless$Count <- as.numeric(sub(",", "", df_homeless$Count, fixed = TRUE))
-    df_homeless$Year <- dmy(df_homeless$Year)
-    df_homeless <- na.omit(df_homeless)
+  # filter year and sum
+  df_homeless <- filter(df_homeless, year(Year) == input$year)
+  df_homeless <- filter(df_homeless, Measures == input$indicator) %>% group_by(State) %>% 
+    summarise("total" = sum(Count))
+
+  # join with population by state
+  df_pop <- read.csv("~/Desktop/201/BF5/Data/acs2015_census_tract_data.csv", stringsAsFactors = FALSE)
+  df_pop <- df_pop %>% group_by(State) %>% summarise("population" = sum(TotalPop))
+  df_homeless <- left_join(df_homeless, df_pop, by = "State")
+
     
     #Clean up Homeless Data, this time for 2012
     #One of the few years we have intersecting Data between Drinking and Homeless 
@@ -51,11 +58,7 @@ shinyServer(function(input, output) {
     drunk_people_per_state <- drunk_people_per_state %>% mutate(state, State = state2abbr(state)) %>% 
       mutate(State = tolower(State)) %>%  select(State, average)
     
-    #Making a common dataset for Homeless Values and Drinking Values Extraceted
-    #This gives us the ease of making interactive plots with just one dataset
-    homeless_and_drunk_people <- left_join(homeless_people_per_state,drunk_people_per_state)
-    
-    
+  # import and join us-state geo sp
     
     # render homeless map ---------------------------------------------------------------------
     output$homeless_m <- renderLeaflet({
@@ -118,20 +121,25 @@ shinyServer(function(input, output) {
                   title = "Homelessness Percentile")
     })
     
-  })
+  #set color palet 
   
-  # Define server logic required to draw a histogram
-  
-  
-  output$distPlot <- renderPlot({
-    
+  bins <- seq(0, 0.5, by= 0.05)
+  f_palet = colorBin("YlOrRd", domain = geo_homeless@data$percentage, bins = bins)
+
     # generate bins based on input$bins from ui.R
     x    <- faithful[, 2] 
     bins <- seq(min(x), max(x), length.out = input$bins + 1)
     
     # draw the histogram with the specified number of bins
     hist(x, breaks = bins, col = 'darkgray', border = 'white')
-    
+
+  #create map
+  m = leaflet(geo_homeless, width = "60%") %>% 
+    addTiles() %>% 
+    addPolygons(fillColor = ~f_palet(percentage), weight = 2, opacity = 1,color = "white",dashArray = "3",  
+                fillOpacity = 0.4, highlight = l_hl_options, label = v_lab, labelOptions = l_lb_options) %>% 
+    addLegend(position = "bottomright", pal = f_palet, values = geo_homeless@data$percentage, 
+                title = "Homelessness Percentage")
   })
   
   #Scatter Plot talking about Average Binge Drinking and Homeless Data Reported in Each State 
