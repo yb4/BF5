@@ -6,6 +6,9 @@ This assignment visualizes data and allows audience to draw a relation between I
 
 ## Datasets Used -  
 [Homelessness Data Set: Kaggle](https://www.kaggle.com/adamschroeder/homelessness/version/2)
+[Incomces Data Set Kaggle](https://www.kaggle.com/goldenoakresearch/us-household-income-stats-geo-locations#kaggle_income.csv),
+[Drinking Data Sources and States](http://www.healthdata.org/us-health/data-download)
+
 ## Why Homelessness?
 Homelessness is a rising problem in Tech Hubs like Seattle, San Francisco, Austin - Texas and 
 Boston - MA, wherein, due to rising costs of living because of an inorganic inflow of money from Tech
