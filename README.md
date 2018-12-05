@@ -1,5 +1,5 @@
 # Homelessness in the United States
-This assignment visualizes data from multiple sources and allows audience to draw a relation between Increasing rent price and Wage Increase and people moving out of Neighbourhoods and Use of Drug and Alocohol Usage and Increase in Homelessness. This topic is very essential to Seattle since with the heavy increase in growth of Startups around the region, many locals have been forced to relocate and a lot of neighbourhoods in Seattle have shown major signs of being Gentrified. 
+This assignment visualizes data from multiple sources and allows audience to draw a relation between Increasing rent price and Wage Increase and people moving out of Neighbourhoods and correlation between increase in use of Drug and Alocohol Usage and Increase in Homelessness. This topic is very essential to Seattle since with the heavy increase in growth of Startups around the region, many locals have been forced to relocate and a lot of neighbourhoods in Seattle have shown major signs of being Gentrified. 
 
 ## Link to the Shiny App
 [Shiny App Link] ()
@@ -14,6 +14,9 @@ ___
 
 [Drinking Data Sources and States](http://www.healthdata.org/us-health/data-download)
 
+___
+
+[Drug Consumption in United States](https://www.datafiles.samhsa.gov/study-dataset/national-survey-drug-use-and-health-2012-nsduh-2012-ds0001-nid13763)
 ___
 
 ## Why Homelessness?

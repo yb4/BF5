@@ -56,10 +56,9 @@ names(homeless_people_per_state) <- c("State", "Count")
 scatter_homeless_and_drunk <- ggplot(homeless_and_drunk_people, aes(x=average, y=Count,color = State, label=State)) + 
                             geom_point(shape = "diamond", size = 1) + theme_minimal() 
 scatter_homeless_and_drunk <- scatter_homeless_and_drunk + geom_label_repel(aes(label=State),
-                                                                       box.padding = 0.35,
-                                                                      point.padding = 0.5,
-                                                                      segment.color = 'grey50') + theme_classic() + labs(x = "Average Drinking",
-                                                                      y = "Count of Homeless", title = "Value of Binge Drinking for Each State for 2012") 
+                              box.padding = 0.35,point.padding = 0.5,
+                             segment.color = 'grey50') + theme_classic() + labs(x = "Average Drinking",
+                            y = "Count of Homeless",title = "Value of Binge Drinking vs Homeless Count for Each State for 2012") 
 #scatter_homeless_and_drunk <- scatter_homeless_and_drunk + theme(axis.text.x = element_blank())
 
 plott <- ggplot (drunk_people_per_state, aes(x=State, y=average), color = "class") + geom_bar(stat = "identity")

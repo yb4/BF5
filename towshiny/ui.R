@@ -6,8 +6,9 @@
 # 
 #    http://shiny.rstudio.com/
 #
-
+library(leaflet)
 library(shiny)
+setwd("~/Desktop/BF5/")
 ui <- navbarPage(
   "Homelessness in the US",
   tabPanel("Homelessness Map",
@@ -19,7 +20,7 @@ ui <- navbarPage(
     )
 ),
 tabPanel("HomeLess and drunk",
-mainPanel("hi there!")
+mainPanel(plotOutput("homless_drinking_plot"))
 ),
 tabPanel("About Us!", mainPanel(
          h1("Yash Baldawa"),
