@@ -2,7 +2,7 @@
 This assignment visualizes data from multiple sources and allows audience to draw a relation between Increasing rent price and Wage Increase and people moving out of Neighbourhoods and correlation between increase in use of Drug and Alocohol Usage and Increase in Homelessness. This topic is very essential to Seattle since with the heavy increase in growth of Startups around the region, many locals have been forced to relocate and a lot of neighbourhoods in Seattle have shown major signs of being Gentrified. 
 
 ## Link to the Shiny App
-[Shiny App Link] ()
+[Shiny App Link](https://towm1204.shinyapps.io/HomelessnessMap/)
 
 ## Datasets Used -  
 [Homelessness Data Set: Kaggle](https://www.kaggle.com/adamschroeder/homelessness/version/2)
