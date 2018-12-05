@@ -78,3 +78,29 @@ addLegend(position = "bottomright",
               pal = f_palet,
               values = geo_homeless@data$percentage, 
               title = "Homelessness Percentile")
+
+homeless_by_state <- read.csv("Data/Homelessness.csv", stringsAsFactors = FALSE)
+total_homeless <- homeless_by_state %>% filter(Measures == "Total Homeless") %>% filter(Year == "1/1/2012") 
+write.csv(total_homeless, "~/Desktop/201/BF5/Data/Homelessness.csv", row.names = TRUE)
+
+# Extracting Total Number of Homeless People per state form 2012 data, leaving Guam and 
+# Puerto Rico asise which have also been included in the dataset
+homeless_by_state$Count <- as.numeric(gsub(",","",homeless_by_state$Count))
+homeless_people_per_state <- homeless_by_state%>% filter(Year == "1/1/2012") %>% 
+  select(State, Count) %>% filter(State != "GU" & State != "PR" & State != "VI") %>% 
+  filter(Count != "NA") %>%  group_by(State) %>% 
+  summarise(Count = sum(as.numeric(Count))) %>% mutate(State = tolower(State))
+
+#Extracting and cleaning data for Drunk People per state for 2012 
+drunk_people_total_by_state <- data.table :: fread ("data/binge_drinking.csv", sep = ",", stringsAsFactors = FALSE)
+drunk_people_per_state <- drunk_people_total_by_state %>% select(state, both_sexes_2012) %>% 
+  group_by(state) %>% summarise(average = mean(both_sexes_2012)) %>% 
+  filter(state != "National") 
+drunk_people_per_state <- drunk_people_per_state %>% mutate(state, State = state2abbr(state)) %>% 
+  mutate(State = tolower(State)) %>%  select(State, average)
+
+#Making a common dataset for Homeless Values and Drinking Values Extraceted
+#This gives us the ease of making interactive plots with just one dataset
+homeless_and_drunk_people <- left_join(homeless_people_per_state,drunk_people_per_state)
+
+
