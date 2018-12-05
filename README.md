@@ -1,6 +1,9 @@
 # Gentrification in the United States
 This assignment visualizes data and allows audience to draw a relation between Increasing rent price and Wage Increase and people moving out of Neighbourhoods and Use of Drug and Alocohol Usage and Increase in Homelessness. This topic is very essential to Seattle since with the heavy increase in growth of Startups around the region, many locals have been forced to relocate and a lot of neighbourhoods in Seattle have shown major signs of being Gentrified. 
 
+## Link to the Shiny App
+[Shiny App Link] ()
+
 ## Datasets Used -  
 [Homelessness Data Set: Kaggle](https://www.kaggle.com/adamschroeder/homelessness/version/2)
 ## Why Homelessness?
@@ -18,3 +21,8 @@ problem of homelessness by attacking its root cause.
 Weather it is providing affordable housing schemes in very expensive states/neighbourhoods to making the 
 laws more stringent on preventing alochol abuse to prevent homelessness, we go over differnt visualizations
 to see if any of these can be a potential causes of Homelessness
+
+## Project Team Members: 
+Yash Baldawa
+Tow Mokaramnee
+Suyash Ahuja

@@ -46,10 +46,15 @@ tabPanel("Why this?",
           br(),
           h1("How does this Visualization Help?"),
           p("This visualization, even though it is on a very small scale, can help government gain leverage over the 
-            problem of homelessness by attacking its root cause.")
+            problem of homelessness by attacking its root cause."),
           p("Weather it is providing affordable housing schemes in very expensive states/neighbourhoods to making the 
             laws more stringent on preventing alochol abuse to prevent homelessness, we go over differnt visualizations
             to see if any of these can be a potential causes of Homelessness")
-          )
+          ),
+         h1("Data Sets in Use"),
+         a("Homeless Data Set Kaggle", href = "https://www.kaggle.com/adamschroeder/homelessness/version/2"),
+         a("Incomces Data Set Kaggle", href = "https://www.kaggle.com/goldenoakresearch/us-household-income-stats-geo-locations#kaggle_income.csv"),
+         a("Drinking Data Sources and States", href = "http://www.healthdata.org/us-health/data-download")
+         
          )
 )
