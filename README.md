@@ -10,6 +10,8 @@ ___
 [US Census Data](https://www.kaggle.com/muonneutrino/us-census-demographic-data)
 ___
 [US Maps Data to create Map Infograph](https://github.com/rstudio/leaflet/issues/498)
+
+We used this to plot the Geographic Map of US
 ___
 [Drinking Data for US States](http://www.healthdata.org/us-health/data-download)
 
@@ -21,6 +23,9 @@ Homelessness is a rising problem in Tech Hubs like Seattle, San Francisco, Austi
 
 # How does this Visualization Help?
 This visualization, even though it is on a very small scale, can help government gain leverage over the problem of homelessness by attacking its root cause. Weather it is providing affordable housing schemes in very expensive states/neighbourhoods to making the laws more stringent on preventing alochol abuse to prevent homelessness, we go over differnt visualizations to see if any of these can be a potential causes of Homelessness
+
+** There is also a static visualization that we created using code of R on the presentation on Slide 6**
+
 
 # Project Team Members:
 Yash Baldawa
