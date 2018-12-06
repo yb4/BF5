@@ -24,7 +24,7 @@ Homelessness is a rising problem in Tech Hubs like Seattle, San Francisco, Austi
 # How does this Visualization Help?
 This visualization, even though it is on a very small scale, can help government gain leverage over the problem of homelessness by attacking its root cause. Weather it is providing affordable housing schemes in very expensive states/neighbourhoods to making the laws more stringent on preventing alochol abuse to prevent homelessness, we go over differnt visualizations to see if any of these can be a potential causes of Homelessness
 
-__There is also a static visualization that we created using code of R on the presentation on Slide 6__
+__There is also a static visualization that we created using R on the presentation on Slide 6__
 
 
 # Project Team Members:
